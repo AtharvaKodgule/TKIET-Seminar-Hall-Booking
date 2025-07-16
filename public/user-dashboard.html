@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - TKIET Seminar Hall Booking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Roboto', sans-serif;
+        }
+        .dashboard-header {
+            background-color: #fff;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .dashboard-main {
+            display: flex;
+            gap: 2rem;
+        }
+        .dashboard-sidebar {
+            width: 250px;
+            background-color: #fff;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .dashboard-content {
+            flex: 1;
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .nav-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: #333;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        .nav-item:hover, .nav-item.active {
+            background-color: #f8f9fa;
+            color: #0d6efd;
+        }
+        .nav-item i {
+            margin-right: 0.5rem;
+        }
+        .halls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .hall-card {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .hall-card h3 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        .facilities {
+            margin: 1rem 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .facilities span {
+            background-color: #f8f9fa;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+        }
+        .facilities i {
+            margin-right: 0.25rem;
+            color: #0d6efd;
+        }
+        .dashboard-section {
+            display: none;
+        }
+        .dashboard-section.active {
+            display: block;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        .error-message {
+            display: none;
+            color: #dc3545;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .hall-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .status-badge.active {
+            background-color: #28a745;
+            color: white;
+        }
+        .status-badge.maintenance {
+            background-color: #ffc107;
+            color: black;
+        }
+        .status-badge.inactive {
+            background-color: #dc3545;
+            color: white;
+        }
+        .hall-details {
+            margin: 1rem 0;
+        }
+        .hall-details p {
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+        .hall-details i {
+            width: 20px;
+            color: #0d6efd;
+        }
+        .facilities {
+            margin: 1rem 0;
+        }
+        .facilities h4 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        .facility-item {
+            display: inline-block;
+            background-color: #f8f9fa;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            margin: 0.25rem;
+            font-size: 0.875rem;
+        }
+        .hall-timestamps {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+            font-size: 0.875rem;
+            color: #666;
+        }
+        .hall-timestamps p {
+            margin-bottom: 0.25rem;
+        }
+        .booking-card {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .booking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .booking-details p {
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+        .booking-details i {
+            width: 20px;
+            color: #0d6efd;
+        }
+        .status-badge.pending {
+            background-color: #ffc107;
+            color: black;
+        }
+        .status-badge.approved {
+            background-color: #28a745;
+            color: white;
+        }
+        .status-badge.rejected {
+            background-color: #dc3545;
+            color: white;
+        }
+        .rejection-reason {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #fff3f3;
+            border-left: 4px solid #dc3545;
+            border-radius: 4px;
+        }
+        .rejection-reason p {
+            color: #dc3545;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <header class="dashboard-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1>User Dashboard</h1>
+                <div class="user-info">
+                    <span id="userName" class="me-3"></span>
+                    <button class="btn btn-outline-danger" onclick="handleLogout()">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-main">
+            <aside class="dashboard-sidebar">
+                <nav>
+                    <a href="#halls" class="nav-item active">
+                        <i class="fas fa-building"></i>
+                        Seminar Halls
+                    </a>
+                    <a href="#bookings" class="nav-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        My Bookings
+                    </a>
+                    <a href="#new-booking" class="nav-item">
+                        <i class="fas fa-plus-circle"></i>
+                        New Booking
+                    </a>
+                </nav>
+            </aside>
+
+            <main class="dashboard-content">
+                <div id="halls" class="dashboard-section active">
+                    <h2>Available Seminar Halls</h2>
+                    <div id="loadingSpinner" class="loading-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    <div id="errorMessage" class="error-message"></div>
+                    <div id="hallsGrid" class="halls-grid">
+                        <!-- Halls will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <div id="bookings" class="dashboard-section">
+                    <h2>My Bookings</h2>
+                    <div id="bookingsList">
+                        <!-- Bookings will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <div id="new-booking" class="dashboard-section">
+                    <h2>New Booking</h2>
+                    <form id="bookingForm" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="hall" class="form-label">Select Hall</label>
+                            <select class="form-select" id="hall" name="hall" required>
+                                <option value="">Choose a hall</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="date" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="date" name="date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="timeSlot" class="form-label">Select Time Slot</label>
+                            <select class="form-select" id="timeSlot" name="timeSlot" required>
+                                <option value="">Choose a time slot...</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="reason" class="form-label">Reason for Booking</label>
+                            <textarea class="form-control" id="reason" name="reason" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Booking</button>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            if (!token || !user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Check token expiration
+            try {
+                const tokenData = JSON.parse(atob(token.split('.')[1]));
+                const expirationTime = tokenData.exp * 1000; // Convert to milliseconds
+                const currentTime = Date.now();
+
+                if (currentTime >= expirationTime) {
+                    console.log('Token expired, redirecting to login...');
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Display user name
+                document.getElementById('userName').textContent = user.full_name;
+            } catch (error) {
+                console.error('Error parsing token:', error);
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Handle logout
+        function handleLogout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+
+        // Load halls from the database
+        async function loadHalls() {
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const errorMessage = document.getElementById('errorMessage');
+            const hallsGrid = document.getElementById('hallsGrid');
+            const hallSelect = document.getElementById('hall');
+
+            try {
+                loadingSpinner.style.display = 'block';
+                errorMessage.style.display = 'none';
+                hallsGrid.innerHTML = '';
+
+                const response = await fetch('http://localhost:3005/api/halls', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch halls');
+                }
+
+                const halls = await response.json();
+                console.log('Fetched halls:', halls); // Debug log
+                
+                // Clear existing options except the first one
+                hallSelect.innerHTML = '<option value="">Choose a hall</option>';
+
+                // Display halls in the grid and populate select
+                halls.forEach(hall => {
+                    console.log('Processing hall:', hall); // Debug log for each hall
+                    
+                    // Format dates
+                    const createdDate = new Date(hall.created_at).toLocaleDateString();
+                    const updatedDate = new Date(hall.updated_at).toLocaleDateString();
+                    
+                    // Parse facilities if it's a string, otherwise use as is
+                    let facilities = hall.facilities;
+                    if (typeof facilities === 'string') {
+                        try {
+                            facilities = JSON.parse(facilities);
+                        } catch (e) {
+                            console.error('Error parsing facilities:', e);
+                            facilities = [];
+                        }
+                    }
+                    
+                    // Add to grid
+                    const hallCard = document.createElement('div');
+                    hallCard.className = 'hall-card';
+                    hallCard.innerHTML = `
+                        <div class="hall-header">
+                            <h3>${hall.name}</h3>
+                            <span class="status-badge ${hall.status}">${hall.status}</span>
+                        </div>
+                        <div class="hall-details">
+                            <p class="hall-id"><i class="fas fa-hashtag"></i> ID: ${hall.id}</p>
+                            <p class="capacity"><i class="fas fa-users"></i> Capacity: ${hall.capacity} people</p>
+                            <div class="facilities">
+                                <h4><i class="fas fa-tools"></i> Facilities:</h4>
+                                ${facilities ? facilities.map(facility => 
+                                    `<span class="facility-item"><i class="fas ${facility.icon}"></i> ${facility.name}</span>`
+                                ).join('') : ''}
+                            </div>
+                            <div class="hall-timestamps">
+                                <p><i class="fas fa-calendar-plus"></i> Created: ${createdDate}</p>
+                                <p><i class="fas fa-calendar-edit"></i> Updated: ${updatedDate}</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="showBookingForm('${hall.id}', '${JSON.parse(localStorage.getItem('user')).id}')">Book Now</button>
+                    `;
+                    hallsGrid.appendChild(hallCard);
+
+                    // Add to select
+                    const option = document.createElement('option');
+                    option.value = hall.id;
+                    option.textContent = hall.name;
+                    hallSelect.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error('Error loading halls:', error);
+                errorMessage.textContent = 'Failed to load halls. Please try again later.';
+                errorMessage.style.display = 'block';
+            } finally {
+                loadingSpinner.style.display = 'none';
+            }
+        }
+
+        // Navigation handling
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = item.getAttribute('href').substring(1);
+                
+                // Update active states
+                document.querySelectorAll('.nav-item').forEach(navItem => {
+                    navItem.classList.remove('active');
+                });
+                item.classList.add('active');
+
+                // Show target section
+                document.querySelectorAll('.dashboard-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+
+        // Show booking form with selected hall
+        function showBookingForm(hallId, userId) {
+            document.getElementById('hall').value = hallId;
+            // Store user ID in a hidden input field
+            if (!document.getElementById('user_id')) {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.id = 'user_id';
+                hiddenInput.name = 'user_id';
+                document.getElementById('bookingForm').appendChild(hiddenInput);
+            }
+            document.getElementById('user_id').value = userId;
+            document.querySelector('.nav-item[href="#new-booking"]').click();
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            loadHalls();
+            loadBookings();
+            loadTimeSlots();
+        });
+
+        // Handle booking form submission
+        document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            if (!form.checkValidity()) {
+                e.stopPropagation();
+                form.classList.add('was-validated');
+                return;
+            }
+
+            // Get form values
+            const hall_id = document.getElementById('hall').value;
+            const booking_date = document.getElementById('date').value;
+            const time_slot_id = document.getElementById('timeSlot').value;
+            const purpose = document.getElementById('reason').value;
+
+            // Validate all fields are present
+            if (!hall_id || !booking_date || !time_slot_id || !purpose) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            const bookingData = {
+                hall_id,
+                booking_date,
+                time_slot_id,
+                purpose
+            };
+
+            try {
+                const response = await fetch('http://localhost:3005/api/bookings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(bookingData)
+                });
+
+                const responseData = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(responseData.message || 'Failed to create booking');
+                }
+
+                alert('Booking submitted successfully!');
+                form.reset();
+                form.classList.remove('was-validated');
+                await loadBookings();
+                document.querySelector('.nav-item[href="#bookings"]').click();
+
+            } catch (error) {
+                console.error('Booking error:', error);
+                alert(error.message || 'An error occurred while submitting the booking');
+            }
+        });
+
+        // Load user's bookings
+        async function loadBookings() {
+            const bookingsList = document.getElementById('bookingsList');
+            const user = JSON.parse(localStorage.getItem('user'));
+            const token = localStorage.getItem('token');
+            
+            if (!user || !user.id) {
+                console.error('User not found in localStorage');
+                bookingsList.innerHTML = '<p class="text-center text-danger">Please log in to view your bookings.</p>';
+                return;
+            }
+
+            if (!token) {
+                console.error('No authentication token found');
+                bookingsList.innerHTML = '<p class="text-center text-danger">Authentication required. Please log in again.</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3005/api/bookings/${user.id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to fetch bookings');
+                }
+
+                const bookings = await response.json();
+                console.log('Received bookings:', bookings); // Debug log
+                
+                if (bookings.length === 0) {
+                    bookingsList.innerHTML = '<p class="text-center">No bookings found.</p>';
+                    return;
+                }
+
+                bookingsList.innerHTML = bookings.map(booking => {
+                    console.log('Processing booking:', booking); // Debug log for each booking
+                    console.log('Booking status:', booking.status, 'Rejection reason:', booking.rejection_reason); // Updated debug log
+                    return `
+                        <div class="booking-card">
+                            <div class="booking-header">
+                                <h3>${booking.hall_name}</h3>
+                                <span class="status-badge ${booking.status.toLowerCase()}">${booking.status}</span>
+                            </div>
+                            <div class="booking-details">
+                                <p><i class="fas fa-calendar"></i> Date: ${new Date(booking.booking_date).toLocaleDateString()}</p>
+                                <p><i class="fas fa-clock"></i> Time: ${booking.start_time} - ${booking.end_time}</p>
+                                <p><i class="fas fa-info-circle"></i> Purpose: ${booking.purpose}</p>
+                                <p><i class="fas fa-calendar-check"></i> Created: ${new Date(booking.created_at).toLocaleDateString()}</p>
+                                ${booking.status === 'REJECTED' && booking.rejection_reason ? 
+                                    `<div class="rejection-reason">
+                                        <p><i class="fas fa-times-circle"></i> <strong>Rejection Reason:</strong> ${booking.rejection_reason}</p>
+                                    </div>` 
+                                    : booking.status === 'REJECTED' ?
+                                    `<div class="rejection-reason">
+                                        <p><i class="fas fa-times-circle"></i> <strong>Rejection Reason:</strong> No reason provided</p>
+                                    </div>`
+                                    : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+                bookingsList.innerHTML = '<p class="text-center text-danger">Failed to load bookings.</p>';
+            }
+        }
+
+        // Add this to your existing JavaScript
+        async function loadTimeSlots() {
+            try {
+                const response = await fetch('http://localhost:3005/api/time-slots', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                const timeSlots = await response.json();
+                
+                const timeSlotSelect = document.getElementById('timeSlot');
+                timeSlotSelect.innerHTML = '<option value="">Choose a time slot...</option>';
+                
+                timeSlots.forEach(slot => {
+                    const option = document.createElement('option');
+                    option.value = slot.id;
+                    option.textContent = slot.slot_name;
+                    timeSlotSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading time slots:', error);
+            }
+        }
+    </script>
+
+    <footer class="container-fluid text-center mt-5 py-3" style="background-color: #f8f9fa; border-top: 1px solid #eee;">
+        <p class="mb-1">&copy; 2025 TKIET Seminar Hall Booking System. All rights reserved.</p>
+        <p class="mb-0">Project by Atharva Kodgule, Swayam, Rohit, Karan.</p>
+    </footer>
+</body>
+</html> 

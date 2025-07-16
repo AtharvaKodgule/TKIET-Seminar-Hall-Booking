@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - TKIET Seminar Hall Booking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .dashboard-header {
+            background-color: #fff;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dashboard-main {
+            display: flex;
+            gap: 2rem;
+        }
+        .dashboard-sidebar {
+            width: 250px;
+            background-color: #fff;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .dashboard-content {
+            flex: 1;
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .nav-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: #333;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        .nav-item:hover, .nav-item.active {
+            background-color: #f8f9fa;
+            color: #0d6efd;
+        }
+        .nav-item i {
+            margin-right: 0.5rem;
+        }
+        .booking-card {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .booking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .booking-details p {
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+        .booking-details i {
+            width: 20px;
+            color: #0d6efd;
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .status-badge.pending {
+            background-color: #ffc107;
+            color: black;
+        }
+        .status-badge.approved {
+            background-color: #28a745;
+            color: white;
+        }
+        .status-badge.rejected {
+            background-color: #dc3545;
+            color: white;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .dashboard-section {
+            display: none;
+        }
+        .dashboard-section.active {
+            display: block;
+        }
+        .stat-card {
+            background-color: #fff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0d6efd;
+            margin: 0;
+        }
+        .halls-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .hall-card {
+            background-color: #fff;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .hall-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .hall-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .facilities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .facilities span {
+            background-color: #f8f9fa;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+        .status-available {
+            color: #198754;
+        }
+        .status-unavailable {
+            color: #dc3545;
+        }
+        .hall-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <header class="dashboard-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1>Admin Dashboard</h1>
+                <div class="user-info">
+                    <span id="userName" class="me-3"></span>
+                    <button class="btn btn-outline-danger" onclick="handleLogout()">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-main">
+            <aside class="dashboard-sidebar">
+                <nav>
+                    <a href="#pending-bookings" class="nav-item active">
+                        <i class="fas fa-clock"></i>
+                        Pending Bookings
+                    </a>
+                    <a href="#all-bookings" class="nav-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        All Bookings
+                    </a>
+                    <a href="#halls" class="nav-item">
+                        <i class="fas fa-building"></i>
+                        Manage Halls
+                    </a>
+                </nav>
+            </aside>
+
+            <main class="dashboard-content">
+                <div id="pending-bookings" class="dashboard-section active">
+                    <h2>Pending Booking Requests</h2>
+                    <div id="pendingBookingsList">
+                        <!-- Pending bookings will be loaded here -->
+                    </div>
+                </div>
+
+                <div id="all-bookings" class="dashboard-section">
+                    <h2>All Bookings</h2>
+                    <div id="allBookingsList">
+                        <!-- All bookings will be loaded here -->
+                    </div>
+                </div>
+
+                <div id="halls" class="dashboard-section">
+                    <h2>Manage Halls</h2>
+                    <div id="hallsList">
+                        <!-- Halls management will be loaded here -->
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Rejection Modal -->
+    <div class="modal fade" id="rejectionModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reject Booking Request</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="rejectionForm">
+                        <input type="hidden" id="bookingId">
+                        <div class="mb-3">
+                            <label for="rejectionReason" class="form-label">Reason for Rejection</label>
+                            <textarea class="form-control" id="rejectionReason" rows="3" required></textarea>
+                        </div>
+                    </form>
+                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="submitRejection()">Reject Booking</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Check authentication and admin role
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            if (!token || !user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Check if user is admin
+            if (user.userType !== 'admin') {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            document.getElementById('userName').textContent = user.full_name;
+        }
+
+        // Handle logout
+        function handleLogout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+
+        // Load pending bookings
+        async function loadPendingBookings() {
+            const pendingBookingsList = document.getElementById('pendingBookingsList');
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                console.error('No authentication token found');
+                pendingBookingsList.innerHTML = '<p class="text-center text-danger">Authentication required. Please log in again.</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3005/api/bookings/pending', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to fetch pending bookings');
+                }
+
+                const bookings = await response.json();
+                
+                if (bookings.length === 0) {
+                    pendingBookingsList.innerHTML = '<p class="text-center">No pending bookings found.</p>';
+                    return;
+                }
+
+                pendingBookingsList.innerHTML = bookings.map(booking => `
+                    <div class="booking-card">
+                        <div class="booking-header">
+                            <h3>Booking ID: ${booking.id}</h3>
+                            <span class="status-badge pending">PENDING</span>
+                        </div>
+                        <div class="booking-details">
+                            <p><i class="fas fa-user"></i> Requested by: ${booking.full_name}</p>
+                            <p><i class="fas fa-building"></i> Department: ${booking.department}</p>
+                            <p><i class="fas fa-building"></i> Hall: ${booking.hall_name}</p>
+                            <p><i class="fas fa-calendar"></i> Date: ${new Date(booking.booking_date).toLocaleDateString()}</p>
+                            <p><i class="fas fa-clock"></i> Start Time: ${booking.start_time}</p>
+                            <p><i class="fas fa-clock"></i> End Time: ${booking.end_time}</p>
+                            <p><i class="fas fa-info-circle"></i> Purpose: ${booking.purpose}</p>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-success" onclick="approveBooking(${booking.id})">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                            <button class="btn btn-danger" onclick="showRejectionModal(${booking.id})">
+                                <i class="fas fa-times"></i> Reject
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Error loading pending bookings:', error);
+                pendingBookingsList.innerHTML = `
+                    <div class="alert alert-danger">
+                        <h4>Failed to load pending bookings</h4>
+                        <p>${error.message}</p>
+                        <p>Please try the following:</p>
+                        <ul>
+                            <li>Check your internet connection</li>
+                            <li>Make sure you're logged in as admin</li>
+                            <li>Try refreshing the page</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+
+        // Load all bookings
+        async function loadAllBookings() {
+            const allBookingsList = document.getElementById('allBookingsList');
+            try {
+                const response = await fetch('http://localhost:3005/api/bookings', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch bookings');
+                }
+
+                const bookings = await response.json();
+                console.log('Received bookings:', bookings); // Debug log
+                
+                if (bookings.length === 0) {
+                    allBookingsList.innerHTML = '<p class="text-center">No bookings found.</p>';
+                    return;
+                }
+
+                allBookingsList.innerHTML = bookings.map(booking => `
+                    <div class="booking-card">
+                        <div class="booking-header">
+                            <h3>Booking ID: ${booking.id}</h3>
+                            <span class="status-badge ${booking.status.toLowerCase()}">${booking.status}</span>
+                        </div>
+                        <div class="booking-details">
+                            <p><i class="fas fa-user"></i> Requested by: ${booking.full_name}</p>
+                            <p><i class="fas fa-building"></i> Department: ${booking.department}</p>
+                            <p><i class="fas fa-building"></i> Hall: ${booking.hall_name}</p>
+                            <p><i class="fas fa-calendar"></i> Date: ${new Date(booking.booking_date).toLocaleDateString()}</p>
+                            <p><i class="fas fa-clock"></i> Time: ${booking.start_time} - ${booking.end_time}</p>
+                            <p><i class="fas fa-info-circle"></i> Purpose: ${booking.purpose}</p>
+                            <p><i class="fas fa-calendar-check"></i> Created: ${new Date(booking.created_at).toLocaleDateString()}</p>
+                            ${booking.status === 'REJECTED' ? `<p class="rejection-reason"><i class="fas fa-times-circle"></i> Reason: ${booking.rejection_reason}</p>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+                allBookingsList.innerHTML = '<p class="text-center text-danger">Failed to load bookings.</p>';
+            }
+        }
+
+        // Approve booking
+        async function approveBooking(bookingId) {
+            try {
+                const token = localStorage.getItem('token');
+                const user = JSON.parse(localStorage.getItem('user'));
+
+                if (!token || !user) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                if (user.userType !== 'admin') {
+                    alert('Only admins can approve bookings');
+                    return;
+                }
+
+                const response = await fetch(`http://localhost:3005/api/bookings/${bookingId}/approve`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 401) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to approve booking');
+                }
+
+                alert('Booking approved successfully!');
+                await loadPendingBookings();
+                await loadAllBookings();
+
+            } catch (error) {
+                console.error('Error approving booking:', error);
+                alert('Failed to approve booking. Please try again.');
+            }
+        }
+
+        // Show rejection modal
+        function showRejectionModal(bookingId) {
+            document.getElementById('bookingId').value = bookingId;
+            const modal = new bootstrap.Modal(document.getElementById('rejectionModal'));
+            modal.show();
+        }
+
+        // Submit rejection
+        async function submitRejection() {
+            const bookingId = document.getElementById('bookingId').value;
+            const reason = document.getElementById('rejectionReason').value.trim();
+
+            if (!reason) {
+                alert('Please provide a reason for rejection');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const user = JSON.parse(localStorage.getItem('user'));
+
+                if (!token || !user) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                if (user.userType !== 'admin') {
+                    alert('Only admins can reject bookings');
+                    return;
+                }
+
+                const response = await fetch(`http://localhost:3005/api/bookings/${bookingId}/reject`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ rejection_reason: reason })
+                });
+
+                if (response.status === 401) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Close modal and reset form
+                const modal = bootstrap.Modal.getInstance(document.getElementById('rejectionModal'));
+                modal.hide();
+                document.getElementById('rejectionForm').reset();
+
+                alert('Booking rejected successfully!');
+                await loadPendingBookings();
+                await loadAllBookings();
+
+            } catch (error) {
+                console.error('Error rejecting booking:', error);
+                alert('Failed to reject booking. Please try again.');
+            }
+        }
+
+        // Load all halls
+        async function loadHalls() {
+            const hallsList = document.getElementById('hallsList');
+            try {
+                const response = await fetch('http://localhost:3005/api/halls', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch halls');
+                }
+
+                const halls = await response.json();
+                console.log('Received halls:', halls); // Debug log
+                
+                if (halls.length === 0) {
+                    hallsList.innerHTML = '<p class="text-center">No halls found.</p>';
+                    return;
+                }
+
+                hallsList.innerHTML = `
+                    <div class="mb-4">
+                        <button class="btn btn-primary" onclick="addNewHall()">
+                            <i class="fas fa-plus"></i> Add New Hall
+                        </button>
+                    </div>
+                    <div class="hall-cards">
+                        ${halls.map(hall => `
+                            <div class="hall-card">
+                                <div class="hall-header">
+                                    <h3>${hall.name || hall.hall_name}</h3>
+                                    <span class="badge bg-${hall.status === 'active' ? 'success' : hall.status === 'maintenance' ? 'warning' : 'danger'}">${hall.status}</span>
+                                </div>
+                                <div class="hall-details">
+                                    <p><i class="fas fa-users"></i> Capacity: ${hall.capacity}</p>
+                                    <div class="facilities">
+                                        <h4>Facilities:</h4>
+                                        ${renderFacilities(hall.facilities)}
+                                    </div>
+                                </div>
+                                <div class="hall-actions mt-3">
+                                    <button class="btn btn-info btn-sm" onclick="editHall(${hall.id})">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteHall(${hall.id})">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Error loading halls:', error);
+                hallsList.innerHTML = '<p class="text-center text-danger">Failed to load halls.</p>';
+            }
+        }
+
+        // Helper function to render facilities
+        function renderFacilities(facilitiesData) {
+            try {
+                const facilities = typeof facilitiesData === 'string' 
+                    ? JSON.parse(facilitiesData || '[]') 
+                    : (facilitiesData || []);
+                
+                if (facilities.length === 0) {
+                    return '<p>No facilities listed</p>';
+                }
+                
+                return `
+                    <div class="facilities">
+                        ${facilities.map(facility => 
+                            `<span><i class="fas ${facility.icon || 'fa-check'}"></i> ${facility.name}</span>`
+                        ).join('')}
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error rendering facilities:', error);
+                return '<p>Error displaying facilities</p>';
+            }
+        }
+
+        // Placeholder functions for hall management
+        function addNewHall() {
+            alert('Add new hall functionality will be implemented here');
+        }
+
+        function editHall(hallId) {
+            alert(`Edit hall ${hallId} functionality will be implemented here`);
+        }
+
+        function deleteHall(hallId) {
+            if (confirm(`Are you sure you want to delete hall ${hallId}?`)) {
+                alert(`Delete hall ${hallId} functionality will be implemented here`);
+            }
+        }
+
+        // Navigation handling
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = item.getAttribute('href').substring(1);
+                
+                // Update active states
+                document.querySelectorAll('.nav-item').forEach(navItem => {
+                    navItem.classList.remove('active');
+                });
+                item.classList.add('active');
+
+                // Show target section
+                document.querySelectorAll('.dashboard-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(targetId).classList.add('active');
+
+                // Load appropriate data
+                if (targetId === 'pending-bookings') {
+                    loadPendingBookings();
+                } else if (targetId === 'all-bookings') {
+                    loadAllBookings();
+                } else if (targetId === 'halls') {
+                    loadHalls();
+                }
+            });
+        });
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            loadPendingBookings();
+        });
+    </script>
+    
+    <footer class="container-fluid text-center mt-5 py-3" style="background-color: #f8f9fa; border-top: 1px solid #eee;">
+        <p class="mb-1">&copy; 2025 TKIET Seminar Hall Booking System. All rights reserved.</p>
+        <p class="mb-0">Project by Atharva Kodgule, Swayam, Rohit, Karan.</p>
+    </footer>
+</body>
+</html> 
