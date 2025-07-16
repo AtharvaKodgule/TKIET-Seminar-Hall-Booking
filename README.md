@@ -92,9 +92,7 @@ The application will be available at `http://localhost:3005`
 - `PUT /api/bookings/:id` - Update a booking
 - `DELETE /api/bookings/:id` - Delete a booking
 
--GitHub: AtharvaKodgule
--LinkedIn: Atharva Kodgule
--Email: kodguleatharva@gmail.com
+
 
 
 ## Contributing
@@ -103,4 +101,12 @@ The application will be available at `http://localhost:3005`
 2. Create your feature branch
 3. Commit your changes
 4. Push to the branch
-5. Create a new Pull Request 
+5. Create a new Pull Request
+
+
+-GitHub: AtharvaKodgule
+
+-LinkedIn:www.linkedin.com/in/
+atharva-kodgule
+
+-Email: kodguleatharva@gmail.com
