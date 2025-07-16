@@ -92,6 +92,11 @@ The application will be available at `http://localhost:3005`
 - `PUT /api/bookings/:id` - Update a booking
 - `DELETE /api/bookings/:id` - Delete a booking
 
+GitHub: AtharvaKodgule
+LinkedIn: Atharva Kodgule
+Email: kodguleatharva@gmail.com
+
+
 ## Contributing
 
 1. Fork the repository
