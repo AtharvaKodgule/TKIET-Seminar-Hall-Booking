@@ -109,4 +109,4 @@ The application will be available at `http://localhost:3005`
 -LinkedIn:www.linkedin.com/in/
 atharva-kodgule
 
--Email: kodguleatharva@gmail.com
+-Email: atharvakodgule17@gmail.com
